@@ -1387,24 +1387,24 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 		# CLEAN-UP FILES
 		# +++++++++++++++++++++++++++++++++++++++++++
 		# if the view files shall not be kept OR (still was rendered AND no filename was specfied) OR the file keeping is forced OR the incomplete render job was discarded
-		if ((self.render_settings.addon_settings.render_output == '1' or (not ((self.render_settings.job.animation == False and not self.render_settings.job.file_use_temp) or self.animation == True))) and self.render_settings.job.file_force_keep == False) or self.discard_lockfile == True:
+		# if ((self.render_settings.addon_settings.render_output == '1' or (not ((self.render_settings.job.animation == False and not self.render_settings.job.file_use_temp) or self.animation == True))) and self.render_settings.job.file_force_keep == False) or self.discard_lockfile == True:
 
-			LookingGlassAddonLogger.info("Cleaning up the disk files.")
+			# LookingGlassAddonLogger.info("Cleaning up the disk files.")
 
-			# if it was an animation
-			if self.render_settings.job.animation:
+			# # if it was an animation
+			# if self.render_settings.job.animation:
 
-				# for all frames of the animation
-				for frame in range(self.render_settings.job.scene.frame_start, self.render_settings.job.scene.frame_end + self.render_settings.frame_step):
+			# 	# for all frames of the animation
+			# 	for frame in range(self.render_settings.job.scene.frame_start, self.render_settings.job.scene.frame_end + self.render_settings.frame_step):
 
-					# delete views
-					self.render_settings.job.delete_files(frame)
+			# 		# delete views
+			# 		self.render_settings.job.delete_files(frame)
 
-			# if it was a still image
-			elif not self.render_settings.job.animation:
+			# # if it was a still image
+			# elif not self.render_settings.job.animation:
 
-				#  delete its views
-				self.render_settings.job.delete_files()
+			# 	#  delete its views
+			# 	self.render_settings.job.delete_files()
 
 
 
