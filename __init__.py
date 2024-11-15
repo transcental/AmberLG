@@ -21,7 +21,7 @@
 bl_info = {
 	"name": "Amber/LG/",
 	"author": "Christian Stolze",
-	"version": (2, 3, 0),
+	"version": (2, 3, 3),
 	"blender": (2, 93, 6),
 	"location": "View3D > Looking Glass Tab",
 	"description": "Amber/LG is Alice/LG which takes your artworks through the Looking Glass (light field displays) but it doesn't delete files",

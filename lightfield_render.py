@@ -469,9 +469,10 @@ class RenderJob:
 					self.scene.camera = self._camera_active
 
 	# assemble quilt
+	#BookMark
 	def assemble_quilt(self):
 
-		LookingGlassAddonLogger.info("Assembling the quilt from the rendered views:")
+		print("Assembling the quilt from the rendered views:")
 
 		# GET THE PIXEL DATA OF THE RENDERED VIEWS
 		# ++++++++++++++++++++++++++++++++++++++++++++
@@ -510,7 +511,7 @@ class RenderJob:
 
 				return None
 
-		LookingGlassAddonLogger.info(" [#] Loaded all views into memory.")
+		print(" [#] Loaded all views into memory.")
 
 
 		# ASSEMBLE THE QUILT
@@ -544,7 +545,7 @@ class RenderJob:
 		quiltPixels = np.reshape(quiltPixels, (self.columns * self.rows * (self.scene.render.resolution_x * self.scene.render.resolution_y * 4)))
 
 		# log info
-		LookingGlassAddonLogger.info(" [#] Assembled quilt in memory.")
+		print(" [#] Assembled quilt in memory.")
 
 		# copy the viewfile
 		# NOTE: We use copyfile() instead of copy(), because the latter failed
@@ -563,7 +564,7 @@ class RenderJob:
 		self._quilt_image = bpy.data.images.load(filepath=self.quilt_filepath())
 
 		# log debug info
-		LookingGlassAddonLogger.info(" [#] Saved quilt file to: " + self._quilt_image.filepath)
+		print(" [#] Saved quilt file to: " + self._quilt_image.filepath)
 
 		# NOTE: Creating a new image via the dedicated operators and methods
 		# 		didn't apply the correct image formats and settings
@@ -571,7 +572,7 @@ class RenderJob:
 		self._quilt_image.scale(self.scene.render.resolution_x * self.columns, self.scene.render.resolution_y * self.rows)
 
 		# log info
-		LookingGlassAddonLogger.info(" [#] Reading quilt pixel data into the image data block.")
+		print(" [#] Reading quilt pixel data into the image data block.")
 
 		# apply the assembled quilt pixel data
 		self._quilt_image.pixels.foreach_set(quiltPixels)
@@ -589,7 +590,7 @@ class RenderJob:
 		self._quilt_image.name = self.file_temp_name
 
 		# log info
-		LookingGlassAddonLogger.info(" [#] Done.")
+		print(" [#] Done.")
 
 		# return the quilt image
 		return self._quilt_image
@@ -621,9 +622,9 @@ class RenderJob:
 	# setup the camera system for rendering
 	def clean_up(self):
 
-		LookingGlassAddonLogger.info("Cleaning up camera setup.")
+		print("Cleaning up camera setup.")
 
-		# if there is an active camera marker in this frame	
+		# if there is an active camera marker in this frame
 		marker_camera_found = False
 		marker_cameras = [marker for marker in bpy.context.scene.timeline_markers if marker.camera is not None]
 		if marker_cameras:
@@ -644,14 +645,14 @@ class RenderJob:
 
 			# if no marker camera was found
 			if not marker_camera_found:
-				
+
 				# restore the original active camera
 				self.scene.camera = self._camera_original
 
 			# delete the temporarily created camera data block
 			if bpy.data.objects.find(self._camera_temp_basename) != -1:
 
-				LookingGlassAddonLogger.info(" [#] Delete temporary camera: %s" % (bpy.data.objects[self._camera_temp_basename]))
+				print(" [#] Delete temporary camera: %s" % (bpy.data.objects[self._camera_temp_basename]))
 
 				# remove the data blocks
 				bpy.data.cameras.remove(bpy.data.objects[self._camera_temp_basename].data, do_unlink=True, do_id_user=True, do_ui_user=True)
@@ -659,7 +660,7 @@ class RenderJob:
 				# clear the list
 				self._camera_temp.clear()
 
-			LookingGlassAddonLogger.info(" [#] Setting scene camera to the original camera: %s" % (self._camera_original))
+			print(" [#] Setting scene camera to the original camera: %s" % (self._camera_original))
 
 		# MULTIVIEW CAMERA RENDERING
 		# ++++++++++++++++++++++++++++++++++
@@ -675,19 +676,19 @@ class RenderJob:
 			for view, camera in enumerate(self._camera_temp):
 
 				# delete the temporarily created camera data block
-				LookingGlassAddonLogger.info(" [#] Delete temporary camera: %s" % (camera))
+				print(" [#] Delete temporary camera: %s" % (camera))
 				bpy.data.cameras.remove(camera.data, do_unlink=True, do_id_user=True, do_ui_user=True)
 
 				# remove the corresponding temporary multiview data block
 				if self.scene.render.views.find(self._multiview_view_basename + str(view).zfill(len(str(self.total_views - 1)))) != -1:
-					LookingGlassAddonLogger.info(" [#] Delete render view: %s" % (self.scene.render.views[self._multiview_view_basename + str(view).zfill(len(str(self.total_views - 1)))]))
+					print(" [#] Delete render view: %s" % (self.scene.render.views[self._multiview_view_basename + str(view).zfill(len(str(self.total_views - 1)))]))
 					self.scene.render.views.remove(self.scene.render.views[self._multiview_view_basename + str(view).zfill(len(str(self.total_views - 1)))])
 
 			# clear the list
 			self._camera_temp.clear()
 
-			LookingGlassAddonLogger.info(" [#] Setting scene camera to the original camera: %s" % (self._camera_original))
-			LookingGlassAddonLogger.info(" [#] Remaining Cameras: %i" % len(self._camera_temp))
+			print(" [#] Setting scene camera to the original camera: %s" % (self._camera_original))
+			print(" [#] Remaining Cameras: %i" % len(self._camera_temp))
 
 			# set to view format to
 			self.scene.render.views_format = 'STEREO_3D'
@@ -732,7 +733,7 @@ class RenderJob:
 		self._state = "INIT_RENDER"
 
 		# log info
-		LookingGlassAddonLogger.info("Rendering job initialized. (lockfile: %s, init: %s)" % (self._use_lockfile, self.init))
+		print("Rendering job initialized. (lockfile: %s, init: %s)" % (self._use_lockfile, self.init))
 
 	# function that is called before rendering starts
 	def pre_render(self, Scene, depsgraph):
@@ -745,26 +746,26 @@ class RenderJob:
 		if not self.use_multiview:
 
 			# output current status
-			LookingGlassAddonLogger.info("Rendering view is going to be prepared.")
-			LookingGlassAddonLogger.info(" [#] active camera: %s" % self._camera_active)
-			LookingGlassAddonLogger.info(" [#] current frame: %s" % self.frame)
-			LookingGlassAddonLogger.info(" [#] current subframe: %s" % self.subframe)
-			LookingGlassAddonLogger.info(" [#] current view: %s" % self.view)
-			LookingGlassAddonLogger.info(" [#] current quilt file: %s" % self.quilt_filepath())
-			LookingGlassAddonLogger.info(" [#] current view file: %s" % self.view_filepath())
+			print("Rendering view is going to be prepared.")
+			print(" [#] active camera: %s" % self._camera_active)
+			print(" [#] current frame: %s" % self.frame)
+			print(" [#] current subframe: %s" % self.subframe)
+			print(" [#] current view: %s" % self.view)
+			print(" [#] current quilt file: %s" % self.quilt_filepath())
+			print(" [#] current view file: %s" % self.view_filepath())
 
 		# MULTIVIEW CAMERA RENDERING
 		# ++++++++++++++++++++++++++++++++++
 		elif self.use_multiview:
 
 			# output current status
-			LookingGlassAddonLogger.info("Rendering multiview is going to be prepared.")
-			LookingGlassAddonLogger.info(" [#] active camera: %s" % self._camera_active)
-			LookingGlassAddonLogger.info(" [#] current frame: %s" % self.frame)
-			LookingGlassAddonLogger.info(" [#] current subframe: %s" % self.subframe)
-			LookingGlassAddonLogger.info(" [#] current view: all (multiview)")
-			LookingGlassAddonLogger.info(" [#] current quilt file: %s" % self.quilt_filepath())
-			LookingGlassAddonLogger.info(" [#] current view file: %s" % self.view_filepath())
+			print("Rendering multiview is going to be prepared.")
+			print(" [#] active camera: %s" % self._camera_active)
+			print(" [#] current frame: %s" % self.frame)
+			print(" [#] current subframe: %s" % self.subframe)
+			print(" [#] current view: all (multiview)")
+			print(" [#] current quilt file: %s" % self.quilt_filepath())
+			print(" [#] current view file: %s" % self.view_filepath())
 
 	# function that is called after rendering finished
 	def post_render(self, Scene, depsgraph):
@@ -772,7 +773,7 @@ class RenderJob:
 		# update operator state
 		self._state = "POST_RENDER"
 
-		LookingGlassAddonLogger.info("Saving view file: %s" % self.view_filepath())
+		print("Saving view file: %s" % self.view_filepath())
 
 			# save the rendered image in a file
 			#bpy.data.images["Render Result"].save_render(filepath=self.view_filepath(), scene=self.scene)
@@ -791,7 +792,7 @@ class RenderJob:
 		self._state = "CANCEL_RENDER"
 		self.scene.addon_settings.render_stop = True
 
-		LookingGlassAddonLogger.info("Rendering job was cancelled.")
+		print("Rendering job was cancelled.")
 
 # a class whose instances will store Blender's RenderSettings attribute
 class RenderSettings:
@@ -1372,7 +1373,7 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 			# remove event timer
 			if self._handle_event_timer: context.window_manager.event_timer_remove(self._handle_event_timer)
 
-			LookingGlassAddonLogger.info("Removing application handlers.")
+			print("Removing application handlers.")
 
 
 
@@ -1387,24 +1388,33 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 		# CLEAN-UP FILES
 		# +++++++++++++++++++++++++++++++++++++++++++
 		# if the view files shall not be kept OR (still was rendered AND no filename was specfied) OR the file keeping is forced OR the incomplete render job was discarded
-		# if ((self.render_settings.addon_settings.render_output == '1' or (not ((self.render_settings.job.animation == False and not self.render_settings.job.file_use_temp) or self.animation == True))) and self.render_settings.job.file_force_keep == False) or self.discard_lockfile == True:
+		print(f"{self.render_settings.addon_settings.render_output} - output type") #0
+		print(self.render_settings.job.animation)# True
+		print(self.render_settings.job.file_use_temp)# False
+		print(self.animation)# True
+		print(self.render_settings.job.file_force_keep)# False
+		print(self.discard_lockfile)# False
 
-			# LookingGlassAddonLogger.info("Cleaning up the disk files.")
+		if ((self.render_settings.addon_settings.render_output == '1' or (not ((self.render_settings.job.animation == False and not self.render_settings.job.file_use_temp) or self.animation == True))) and self.render_settings.job.file_force_keep == False) or self.discard_lockfile == True:
 
-			# # if it was an animation
-			# if self.render_settings.job.animation:
+			#BookMark
 
-			# 	# for all frames of the animation
-			# 	for frame in range(self.render_settings.job.scene.frame_start, self.render_settings.job.scene.frame_end + self.render_settings.frame_step):
+			print("Cleaning up the disk files.")
 
-			# 		# delete views
-			# 		self.render_settings.job.delete_files(frame)
+			# if it was an animation
+			if self.render_settings.job.animation:
 
-			# # if it was a still image
-			# elif not self.render_settings.job.animation:
+				# for all frames of the animation
+				for frame in range(self.render_settings.job.scene.frame_start, self.render_settings.job.scene.frame_end + self.render_settings.frame_step):
 
-			# 	#  delete its views
-			# 	self.render_settings.job.delete_files()
+					# delete views
+					self.render_settings.job.delete_files(frame)
+
+			# if it was a still image
+			elif not self.render_settings.job.animation:
+
+				#  delete its views
+				self.render_settings.job.delete_files()
 
 
 
@@ -1473,6 +1483,7 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 				self.report({"ERROR"}, "Render job can not be continued. Lockfile not found or corrupted.")
 
 				# cancel the operator
+				print('canceled - 2')
 				self.cancel(context)
 
 				# don't execute operator
@@ -1592,6 +1603,7 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 		if self.discard_lockfile == True:
 
 			# cancel the operator
+			print('canceled - 1')
 			self.cancel(context)
 
 			# notify user
@@ -1605,11 +1617,11 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 		if bpy.context.scene.render.use_compositing and not bpy.context.scene.render.use_sequencer:
 			# notify user
 			self.report({"WARNING"}, "The compositor is active. This might cause issues during quilt rendering.")
-		
+
 		elif not bpy.context.scene.render.use_compositing and bpy.context.scene.render.use_sequencer:
 			# notify user
 			self.report({"WARNING"}, "The sequencer is active. This might cause issues during quilt rendering.")
-		
+
 		elif bpy.context.scene.render.use_compositing and bpy.context.scene.render.use_sequencer:
 			# notify user
 			self.report({"WARNING"}, "The compositor and sequencer are active. This might cause issues during quilt rendering.")
@@ -1768,40 +1780,46 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 				if self.render_settings.job.view == (self.render_settings.job.view_end - 1) or self.use_multiview:
 					start = time.time()
 
-					# assemble the quilt from the view data
-					if not self.render_settings.job.assemble_quilt():
+					#BookMark
 
-						# cancel the operator
-						self.render_settings.addon_settings.render_stop = True
+					print('about to make quilt')
+					if self.render_settings.addon_settings.render_output != '2':
 
-						# force the operator to keep the view Files
-						self.file_force_keep = True
+						# assemble the quilt from the view data
+						if not self.render_settings.job.assemble_quilt():
+							print('failed to make quilt')
 
-						# notify user
-						self.cancel_sign = "ERROR"
-						self.cancel_message = "Render job can not be continued. Missing view file(s) of the previously failed render job."
+							# cancel the operator
+							self.render_settings.addon_settings.render_stop = True
+
+							# force the operator to keep the view Files
+							self.file_force_keep = True
+
+							# notify user
+							self.cancel_sign = "ERROR"
+							self.cancel_message = "Render job can not be continued. Missing view file(s) of the previously failed render job."
 
 
-					# QUILT DISPLAY AS RENDER RESULT
-					# ++++++++++++++++++++++++++++++++++++++++++++
-					for window in context.window_manager.windows:
-						for area in window.screen.areas:
+						# QUILT DISPLAY AS RENDER RESULT
+						# ++++++++++++++++++++++++++++++++++++++++++++
+						for window in context.window_manager.windows:
+							for area in window.screen.areas:
 
-							if area.type == 'IMAGE_EDITOR':
+								if area.type == 'IMAGE_EDITOR':
 
-								if area.spaces.active != None:
+									if area.spaces.active != None:
 
-									if area.spaces.active.image != None:
+										if area.spaces.active.image != None:
 
-										if area.spaces.active.image.name == "Render Result":
+											if area.spaces.active.image.name == "Render Result":
 
-											# and change the active image shown here to the quilt
-											area.spaces.active.image = self.render_settings.job._quilt_image
+												# and change the active image shown here to the quilt
+												area.spaces.active.image = self.render_settings.job._quilt_image
 
-											# fit the zoom factor in this window to show the complete quilt
-											# bpy.ops.image.view_all({'window': window, 'screen': window.screen, 'area': area})
+												# fit the zoom factor in this window to show the complete quilt
+												# bpy.ops.image.view_all({'window': window, 'screen': window.screen, 'area': area})
 
-											break
+												break
 
 
 				# UPDATE LOCKFILE
@@ -1866,9 +1884,11 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 
 							# if the view files shall not be kept
 							if ((self.render_settings.addon_settings.render_output == '1') and self.render_settings.job.file_force_keep == False):
-
+#
 								# delete views of the rendered frame
 								self.render_settings.job.delete_files(self.render_settings.job.frame)
+
+							#BookMark
 
 							# delete the temporarily created camera
 							self.render_settings.job.clean_up()
@@ -1909,6 +1929,7 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 		if (self.render_settings.job._state == "INVOKE_RENDER" or self.render_settings.job._state == "COMPLETE_RENDER" or self.render_settings.job._state == "CANCEL_RENDER") and self.render_settings.addon_settings.render_stop:
 
 			# cancel the operator
+			print('canceled - 0')
 			self.cancel(context)
 
 			# notify user

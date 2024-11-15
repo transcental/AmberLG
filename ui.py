@@ -1022,8 +1022,9 @@ class LookingGlassAddonSettingsScene(bpy.types.PropertyGroup):
 	# File handling
 	render_output: bpy.props.EnumProperty(
 									items = [('0', 'View and Quilt Files', 'Each view is rendered to a separate file in the output directory in addition to the quilt.'),
-											 ('1', 'Only Quilt File', 'Each view is rendered to a temporary file in the output directory. These files are deleted after the quilt is complete.')],
-									default='1',
+											 ('1', 'Only Quilt File', 'Each view is rendered to a temporary file in the output directory. These files are deleted after the quilt is complete.'),
+											 ('2', 'Only View Files', 'Each view is rendered to a separate file in the output directory.')],
+									default='0',
 									name="Output",
 									)
 
