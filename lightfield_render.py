@@ -262,7 +262,7 @@ class RenderJob:
 	# setup the camera (system) for rendering
 	def setup_camera(self):
 
-		# check, if there is an active camera marker in this frame	
+		# check, if there is an active camera marker in this frame
 		marker_camera_found = False
 		marker_cameras = [marker for marker in bpy.context.scene.timeline_markers if marker.camera is not None]
 		if marker_cameras:
@@ -333,8 +333,8 @@ class RenderJob:
 				#		required for single cameras. Rendering still works,
 				#		which is nice, because the camera remains invisible.
 				#		Leave this here for debugging purposes.
-				# # add this camera to the master collection of the scene
-				# self.scene.collection.objects.link(self._camera_active)
+				# add this camera to the master collection of the scene
+				#self.scene.collection.objects.link(self._camera_active)
 
 
 			# CAMERA SETTINGS: APPLY POSITION AND SHIFT
@@ -469,7 +469,6 @@ class RenderJob:
 					self.scene.camera = self._camera_active
 
 	# assemble quilt
-	#BookMark
 	def assemble_quilt(self):
 
 		print("Assembling the quilt from the rendered views:")
@@ -735,6 +734,8 @@ class RenderJob:
 		# log info
 		print("Rendering job initialized. (lockfile: %s, init: %s)" % (self._use_lockfile, self.init))
 
+	#BookMark
+
 	# function that is called before rendering starts
 	def pre_render(self, Scene, depsgraph):
 
@@ -859,7 +860,7 @@ class RenderSettings:
 					# deactivate the "Add Metadata option"
 					self.scene.addon_settings.render_add_suffix = False
 
-				# if an starting frame was specified
+				# if a starting frame was specified
 				if "-s" in LookingGlassAddon.addon_arguments or "--frame-start" in LookingGlassAddon.addon_arguments:
 
 					# get the file name position
@@ -921,7 +922,7 @@ class RenderSettings:
 						# set the current frame
 						self.scene.frame_current = int(LookingGlassAddon.addon_arguments[index])
 
-				# if a rendering frame was specified
+        		# if a rendering view was specified
 				if "-v" in LookingGlassAddon.addon_arguments or "--render-view" in LookingGlassAddon.addon_arguments:
 
 					# get the view index
@@ -946,13 +947,21 @@ class RenderSettings:
 					# set the current frame
 					self.view_end = int(LookingGlassAddon.addon_arguments[index + 1]) + 1
 
-
 			# INITIALIZATION
 			# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 			# make an internal variable for the add-on settings,
 			# which can be accessed from methods that have no "context" parameter
 			self.addon_settings = self.scene.addon_settings
+
+			#BookMark
+			print('view start',self.addon_settings.render_view_start)
+			print('view end',self.addon_settings.render_view_end)
+			self.view_start = int(self.addon_settings.render_view_start)
+			print('render output',self.addon_settings.render_output)
+			self.addon_settings.render_output = '2'
+			print('render output',self.addon_settings.render_output)
+			#if <= self.view_end = self._qs[int(self._quilt_preset)]["total_views"]:
 
 			# initialize the rendering job variables
 			self.job = RenderJob(self.scene, self.animation, self._use_lockfile, self.use_multiview, self.blocking)
@@ -1091,7 +1100,7 @@ class RenderSettings:
 	# NOTE: This function is largely taken from https://stackoverflow.com/a/1118038
 	def to_dict(self, obj, classkey=None):
 
-		# if this is an dictionary
+		# if this is a dictionary
 		if isinstance(obj, dict):
 			data = {}
 			for (k, v) in obj.items():
@@ -1388,12 +1397,12 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 		# CLEAN-UP FILES
 		# +++++++++++++++++++++++++++++++++++++++++++
 		# if the view files shall not be kept OR (still was rendered AND no filename was specfied) OR the file keeping is forced OR the incomplete render job was discarded
-		print(f"{self.render_settings.addon_settings.render_output} - output type") #0
-		print(self.render_settings.job.animation)# True
-		print(self.render_settings.job.file_use_temp)# False
-		print(self.animation)# True
-		print(self.render_settings.job.file_force_keep)# False
-		print(self.discard_lockfile)# False
+		#print(f"{self.render_settings.addon_settings.render_output} - output type") #0
+		#print(self.render_settings.job.animation)# True
+		#print(self.render_settings.job.file_use_temp)# False
+		#print(self.animation)# True
+		#print(self.render_settings.job.file_force_keep)# False
+		#print(self.discard_lockfile)# False
 
 		if ((self.render_settings.addon_settings.render_output == '1' or (not ((self.render_settings.job.animation == False and not self.render_settings.job.file_use_temp) or self.animation == True))) and self.render_settings.job.file_force_keep == False) or self.discard_lockfile == True:
 
@@ -1782,7 +1791,6 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 
 					#BookMark
 
-					print('about to make quilt')
 					if self.render_settings.addon_settings.render_output != '2':
 
 						# assemble the quilt from the view data
@@ -1887,8 +1895,6 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 #
 								# delete views of the rendered frame
 								self.render_settings.job.delete_files(self.render_settings.job.frame)
-
-							#BookMark
 
 							# delete the temporarily created camera
 							self.render_settings.job.clean_up()

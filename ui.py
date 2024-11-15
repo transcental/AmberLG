@@ -1027,6 +1027,27 @@ class LookingGlassAddonSettingsScene(bpy.types.PropertyGroup):
 									default='0',
 									name="Output",
 									)
+	
+	#View specification
+	render_view_start: bpy.props.FloatProperty(
+										name = "View Start",
+										default = 0,
+										min = 0,
+										precision = 1,
+										step = 5,
+										unit = "NONE",
+										description = "The starting viewing angle for the render.",
+										)
+	
+	render_view_end: bpy.props.FloatProperty(
+										name = "View End",
+										default = 66,
+										min = 0,
+										precision = 1,
+										step = 5,
+										unit = "NONE",
+										description = "The last viewing angle for the render.",
+										)
 
 	# Progress bar
 	render_progress: bpy.props.FloatProperty(
@@ -1480,6 +1501,7 @@ class LOOKINGGLASS_PT_panel_camera(bpy.types.Panel):
 		# display the clipping settings
 		camera = context.scene.addon_settings.lookingglassCamera
 		if camera:
+			#bookmark
 
 			column.separator()
 			row_clip_start = column.row(align = True)
@@ -1538,6 +1560,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		row_metadata = row_general_options.row(align = True)
 		render_add_suffix = row_metadata.prop(context.scene.addon_settings, "render_add_suffix")
 
+		#bookmark
+
 		# Render orientation
 		row_orientation = layout.row(align = True)
 		column_1 = row_orientation.row(align = True)
@@ -1563,6 +1587,24 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		column_1.scale_x = 0.3
 		column_2 = row_output.row(align = True)
 		column_2.prop(context.scene.addon_settings, "render_output", text="")
+		column_2.scale_x = 0.7
+
+		# Start view
+		row_view_start = layout.row(align = True)
+		column_1 = row_view_start.row(align = True)
+		column_1.label(text="Start View:")
+		column_1.scale_x = 0.3
+		column_2 = row_view_start.row(align = True)
+		column_2.prop(context.scene.addon_settings, "render_view_start", text="")
+		column_2.scale_x = 0.7
+
+		# End view
+		row_view_end = layout.row(align = True)
+		column_1 = row_view_end.row(align = True)
+		column_1.label(text="End View:")
+		column_1.scale_x = 0.3
+		column_2 = row_view_end.row(align = True)
+		column_2.prop(context.scene.addon_settings, "render_view_end", text="")
 		column_2.scale_x = 0.7
 
 		# if no lockfile was detected on start-up OR the render job is running
@@ -1603,6 +1645,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			row_orientation.enabled = False
 			row_preset.enabled = False
 			row_output.enabled = False
+			row_view_start.enabled = False
+			row_view_end.enabled = False
 
 			# inform the user and provide options to continue or to discard
 			row_render_still = layout.row(align = True)
@@ -1627,6 +1671,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			row_orientation.enabled = False
 			row_preset.enabled = False
 			row_output.enabled = False
+			row_view_start.enabled = False
+			row_view_end.enabled = False
 
 			if LookingGlassAddon.RenderAnimation == True: row_render_still.enabled = False
 			if LookingGlassAddon.RenderAnimation == False: row_render_animation.enabled = False
@@ -1640,6 +1686,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			row_orientation.enabled = False
 			row_preset.enabled = False
 			row_output.enabled = False
+			row_view_start.enabled = False
+			row_view_end.enabled = False
 			row_render_still.enabled = False
 			row_render_animation.enabled = False
 
@@ -1649,6 +1697,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			# disable all elements
 			row_orientation.enabled = False
 			row_preset.enabled = False
+			row_view_start.enabled = False
+			row_view_end.enabled = False
 
 		# if no Looking Glass was detected AND debug mode is not activated
 		if not pylio.DeviceManager.count() and not LookingGlassAddon.debugging_use_dummy_device:
@@ -1726,6 +1776,7 @@ class LOOKINGGLASS_PT_panel_lightfield(bpy.types.Panel):
 			row_preset = column.row()
 			row_preset.prop(context.window_manager.addon_settings, "lightfieldMode", text="")
 			row_preset.operator("lookingglass.refresh_lightfield", text="", icon='FILE_REFRESH')
+			#WHAT
 
 			# Preview settings
 			row_output = column.row(align = True)
@@ -2012,6 +2063,8 @@ class LOOKINGGLASS_PT_panel_blocks_imageeditor_options(bpy.types.Panel):
 		column_2.prop(context.scene.addon_settings, "imageeditor_block_device_type", text="")
 		column_2.scale_x = 0.7
 
+
+		#huh
 		# Quilt settings
 		row_preset = layout.row(align = True)
 		row_preset.enabled = (not LookingGlassAddon.ImageBlockRenderer.is_imageeditor_detected())
