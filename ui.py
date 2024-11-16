@@ -284,7 +284,6 @@ class LookingGlassAddonUI:
 
 	# update function for property updates concerning render settings (WITHOUT quilt preset)
 	def update_render_setting_without_preset(self, context):
-
 		# if a device is selected by the user
 		if int(context.window_manager.addon_settings.activeDisplay) != -1:	pylio.DeviceManager.set_active(int(context.window_manager.addon_settings.activeDisplay))
 		else:						 										pylio.DeviceManager.reset_active()
@@ -348,7 +347,6 @@ class LookingGlassAddonUI:
 				bpy.ops.wm.update_block_renderer('INVOKE_DEFAULT')
 
 		return None
-
 
 	# update settings for the viewport editor blocks
 	def update_viewport_block_settings(self, context):
@@ -1027,25 +1025,29 @@ class LookingGlassAddonSettingsScene(bpy.types.PropertyGroup):
 									default='0',
 									name="Output",
 									)
-	
-	#View specification
-	render_view_start: bpy.props.FloatProperty(
+
+	#BookMark
+	# Use custom view range or not
+	render_use_view_range: bpy.props.BoolProperty(
+										name="Use View Range",
+										description="Enables and disables using custom view ranges",
+										default = False,
+										)
+
+	# View specification
+	render_view_start: bpy.props.IntProperty(
 										name = "View Start",
 										default = 0,
 										min = 0,
-										precision = 1,
-										step = 5,
-										unit = "NONE",
+										step = 1,
 										description = "The starting viewing angle for the render.",
 										)
-	
-	render_view_end: bpy.props.FloatProperty(
+
+	render_view_end: bpy.props.IntProperty(
 										name = "View End",
 										default = 66,
 										min = 0,
-										precision = 1,
-										step = 5,
-										unit = "NONE",
+										step = 1,
 										description = "The last viewing angle for the render.",
 										)
 
@@ -1501,8 +1503,6 @@ class LOOKINGGLASS_PT_panel_camera(bpy.types.Panel):
 		# display the clipping settings
 		camera = context.scene.addon_settings.lookingglassCamera
 		if camera:
-			#bookmark
-
 			column.separator()
 			row_clip_start = column.row(align = True)
 			row_clip_start.prop(context.scene.addon_settings, "clip_start")
@@ -1538,6 +1538,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 	bl_region_type = "UI"
 	bl_category = "Looking Glass"
 	bl_parent_id = "LOOKINGGLASS_PT_panel_general"
+	row_view_start = False
+	row_view_end = False
 
 
 	# define own poll method to be able to hide / show the panel on demand
@@ -1560,7 +1562,11 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		row_metadata = row_general_options.row(align = True)
 		render_add_suffix = row_metadata.prop(context.scene.addon_settings, "render_add_suffix")
 
-		#bookmark
+		# Use custom view range or not
+		row_use_view_range = row_general_options.row(align = True)
+		render_use_view_range = row_use_view_range.prop(context.scene.addon_settings, "render_use_view_range")
+
+		#BookMark
 
 		# Render orientation
 		row_orientation = layout.row(align = True)
@@ -1590,22 +1596,25 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		column_2.scale_x = 0.7
 
 		# Start view
-		row_view_start = layout.row(align = True)
-		column_1 = row_view_start.row(align = True)
+		LOOKINGGLASS_PT_panel_render.row_view_start = layout.row(align = True)
+		column_1 = LOOKINGGLASS_PT_panel_render.row_view_start.row(align = True)
 		column_1.label(text="Start View:")
 		column_1.scale_x = 0.3
-		column_2 = row_view_start.row(align = True)
+		column_2 = LOOKINGGLASS_PT_panel_render.row_view_start.row(align = True)
 		column_2.prop(context.scene.addon_settings, "render_view_start", text="")
 		column_2.scale_x = 0.7
 
 		# End view
-		row_view_end = layout.row(align = True)
-		column_1 = row_view_end.row(align = True)
+		LOOKINGGLASS_PT_panel_render.row_view_end = layout.row(align = True)
+		column_1 = LOOKINGGLASS_PT_panel_render.row_view_end.row(align = True)
 		column_1.label(text="End View:")
 		column_1.scale_x = 0.3
-		column_2 = row_view_end.row(align = True)
+		column_2 = LOOKINGGLASS_PT_panel_render.row_view_end.row(align = True)
 		column_2.prop(context.scene.addon_settings, "render_view_end", text="")
 		column_2.scale_x = 0.7
+
+		LOOKINGGLASS_PT_panel_render.row_view_start.enabled = context.scene.addon_settings.render_use_view_range
+		LOOKINGGLASS_PT_panel_render.row_view_end.enabled = context.scene.addon_settings.render_use_view_range
 
 		# if no lockfile was detected on start-up OR the render job is running
 		if not LookingGlassAddon.has_lockfile or LookingGlassAddon.RenderInvoked:
@@ -1645,8 +1654,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			row_orientation.enabled = False
 			row_preset.enabled = False
 			row_output.enabled = False
-			row_view_start.enabled = False
-			row_view_end.enabled = False
+			LOOKINGGLASS_PT_panel_render.row_view_start.enabled = False
+			LOOKINGGLASS_PT_panel_render.row_view_end.enabled = False
 
 			# inform the user and provide options to continue or to discard
 			row_render_still = layout.row(align = True)
@@ -1671,8 +1680,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			row_orientation.enabled = False
 			row_preset.enabled = False
 			row_output.enabled = False
-			row_view_start.enabled = False
-			row_view_end.enabled = False
+			LOOKINGGLASS_PT_panel_render.row_view_start.enabled = False
+			LOOKINGGLASS_PT_panel_render.row_view_end.enabled = False
 
 			if LookingGlassAddon.RenderAnimation == True: row_render_still.enabled = False
 			if LookingGlassAddon.RenderAnimation == False: row_render_animation.enabled = False
@@ -1686,8 +1695,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			row_orientation.enabled = False
 			row_preset.enabled = False
 			row_output.enabled = False
-			row_view_start.enabled = False
-			row_view_end.enabled = False
+			LOOKINGGLASS_PT_panel_render.row_view_start.enabled = False
+			LOOKINGGLASS_PT_panel_render.row_view_end.enabled = False
 			row_render_still.enabled = False
 			row_render_animation.enabled = False
 
@@ -1697,8 +1706,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			# disable all elements
 			row_orientation.enabled = False
 			row_preset.enabled = False
-			row_view_start.enabled = False
-			row_view_end.enabled = False
+			LOOKINGGLASS_PT_panel_render.row_view_start.enabled = False
+			LOOKINGGLASS_PT_panel_render.row_view_end.enabled = False
 
 		# if no Looking Glass was detected AND debug mode is not activated
 		if not pylio.DeviceManager.count() and not LookingGlassAddon.debugging_use_dummy_device:
