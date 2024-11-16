@@ -1538,8 +1538,6 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 	bl_region_type = "UI"
 	bl_category = "Looking Glass"
 	bl_parent_id = "LOOKINGGLASS_PT_panel_general"
-	row_view_start = False
-	row_view_end = False
 
 
 	# define own poll method to be able to hide / show the panel on demand
@@ -1596,25 +1594,26 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		column_2.scale_x = 0.7
 
 		# Start view
-		LOOKINGGLASS_PT_panel_render.row_view_start = layout.row(align = True)
-		column_1 = LOOKINGGLASS_PT_panel_render.row_view_start.row(align = True)
+		row_view_start = layout.row(align = True)
+		column_1 = row_view_start.row(align = True)
 		column_1.label(text="Start View:")
 		column_1.scale_x = 0.3
-		column_2 = LOOKINGGLASS_PT_panel_render.row_view_start.row(align = True)
+		column_2 = row_view_start.row(align = True)
 		column_2.prop(context.scene.addon_settings, "render_view_start", text="")
 		column_2.scale_x = 0.7
 
 		# End view
-		LOOKINGGLASS_PT_panel_render.row_view_end = layout.row(align = True)
-		column_1 = LOOKINGGLASS_PT_panel_render.row_view_end.row(align = True)
+		row_view_end = layout.row(align = True)
+		column_1 = row_view_end.row(align = True)
 		column_1.label(text="End View:")
 		column_1.scale_x = 0.3
-		column_2 = LOOKINGGLASS_PT_panel_render.row_view_end.row(align = True)
+		column_2 = row_view_end.row(align = True)
 		column_2.prop(context.scene.addon_settings, "render_view_end", text="")
 		column_2.scale_x = 0.7
 
-		LOOKINGGLASS_PT_panel_render.row_view_start.enabled = context.scene.addon_settings.render_use_view_range
-		LOOKINGGLASS_PT_panel_render.row_view_end.enabled = context.scene.addon_settings.render_use_view_range
+		row_output.enabled = context.scene.addon_settings.render_use_view_range
+		row_view_start.enabled = context.scene.addon_settings.render_use_view_range
+		row_view_end.enabled = context.scene.addon_settings.render_use_view_range
 
 		# if no lockfile was detected on start-up OR the render job is running
 		if not LookingGlassAddon.has_lockfile or LookingGlassAddon.RenderInvoked:
