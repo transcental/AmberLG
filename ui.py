@@ -1611,7 +1611,7 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		column_2.prop(context.scene.addon_settings, "render_view_end", text="")
 		column_2.scale_x = 0.7
 
-		row_output.enabled = context.scene.addon_settings.render_use_view_range
+		row_output.enabled = not context.scene.addon_settings.render_use_view_range
 		row_view_start.enabled = context.scene.addon_settings.render_use_view_range
 		row_view_end.enabled = context.scene.addon_settings.render_use_view_range
 
