@@ -455,9 +455,7 @@ class LookingGlassAddonUI:
 
 			if not LookingGlassAddonUI.synchronize_active_camera in bpy.app.handlers.depsgraph_update_post: bpy.app.handlers.depsgraph_update_post.append(LookingGlassAddonUI.synchronize_active_camera)
 			if not LookingGlassAddonUI.synchronize_active_camera in bpy.app.handlers.frame_change_post: bpy.app.handlers.frame_change_post.append(LookingGlassAddonUI.synchronize_active_camera)
-		
 		elif not context.scene.addon_settings.toggleCameraSync:
-
 			if LookingGlassAddonUI.synchronize_active_camera in bpy.app.handlers.depsgraph_update_post: bpy.app.handlers.depsgraph_update_post.remove(LookingGlassAddonUI.synchronize_active_camera)
 			if LookingGlassAddonUI.synchronize_active_camera in bpy.app.handlers.frame_change_post: bpy.app.handlers.frame_change_post.remove(LookingGlassAddonUI.synchronize_active_camera)
 
@@ -487,7 +485,7 @@ class LookingGlassAddonUI:
 
 				if not (bpy.context.scene.addon_settings.clip_start < bpy.context.scene.addon_settings.focalPlane < bpy.context.scene.addon_settings.clip_end):
 					bpy.context.scene.addon_settings.focalPlane = 5
-				
+
 				# set flag
 				context.scene.addon_settings.lookingglassCamera.data.is_lightfield = True
 
@@ -582,7 +580,7 @@ class LookingGlassAddonUI:
 			if camera:
 				if self.get('focalPlane', 5) != camera.data.dof.focus_distance:
 					bpy.context.scene.addon_settings.focalPlane = camera.data.dof.focus_distance
-		
+
 		return self.get('focalPlane', 5)
 
 	# setter for the focalPlane
@@ -1600,6 +1598,8 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		column_2.prop(context.scene.addon_settings, "render_view_start", text="")
 		column_2.scale_x = 0.7
 
+		
+
 		# End view
 		row_view_end = layout.row(align = True)
 		column_1 = row_view_end.row(align = True)
@@ -1609,7 +1609,7 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		column_2.prop(context.scene.addon_settings, "render_view_end", text="")
 		column_2.scale_x = 0.7
 
-		# activate/deactivate menus based on 'use view range' 
+		# activate/deactivate menus based on 'use view range'
 		row_output.enabled = not context.scene.addon_settings.render_use_view_range
 		row_view_start.enabled = context.scene.addon_settings.render_use_view_range
 		row_view_end.enabled = context.scene.addon_settings.render_use_view_range

@@ -998,7 +998,8 @@ class RenderSettings:
 				# -1 as we index from 0 and total_views is the number of images
 				if self.addon_settings.render_view_start < self._qs[int(self._quilt_preset)]["total_views"]:
 					self.view_start = self.addon_settings.render_view_start
-				if self.addon_settings.render_view_end < self._qs[int(self._quilt_preset)]["total_views"] and self.view_start <= self.addon_settings.render_view_end + 1:
+
+				if self.addon_settings.render_view_end < self._qs[int(self._quilt_preset)]["total_views"] and self.view_start <= self.addon_settings.render_view_end:
 					self.view_end = self.addon_settings.render_view_end
 
 			# set view range to default if None was given
