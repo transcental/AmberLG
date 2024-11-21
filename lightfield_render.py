@@ -184,7 +184,7 @@ class RenderJob:
 
 		# if an animation is rendered
 		if self.animation:
-			return os.path.join(self.file_dirname, self.file_basename + "_f" + str(frame).zfill(len(str(self.scene.frame_end))) + self.get_quilt_suffix() + "_v" + str(view).zfill(len(str(self.total_views - 1))) + self.file_extension)
+			return os.path.join(self.file_dirname, self.file_basename + "_f" + str(frame).zfill(len(str(self.scene.frame_end))) + self.get_quilt_suffix() + "_v" + str(view).zfill(len(str(self.used_views))) + self.file_extension)
 
 		# if an animation is rendered
 		elif not self.animation:
@@ -679,7 +679,6 @@ class RenderJob:
 				LookingGlassAddonLogger.info(" [#] Delete temporary camera: %s" % (camera))
 				bpy.data.cameras.remove(camera.data, do_unlink=True, do_id_user=True, do_ui_user=True)
 
-				#BookMark
 				# remove the corresponding temporary multiview data block
 				if self.scene.render.views.find(self._multiview_view_basename + str(view + self.view_start).zfill(len(str(self.total_views - 1)))) != -1:
 					LookingGlassAddonLogger.info(" [#] Delete render view: %s" % (self.scene.render.views[self._multiview_view_basename + str(view + self.view_start).zfill(len(str(self.total_views - 1)))]))
@@ -708,7 +707,7 @@ class RenderJob:
 
 			# if a single frame shall be rendered
 			if self.animation == False:
-				return int(self.view / ((self.used_views - 1)) * 100)
+				return int(self.view / ((self.used_views)) * 100)
 
 			# for animations
 			else:
@@ -735,8 +734,6 @@ class RenderJob:
 
 		# log info
 		LookingGlassAddonLogger.info("Rendering job initialized. (lockfile: %s, init: %s)" % (self._use_lockfile, self.init))
-
-	#BookMark
 
 	# function that is called before rendering starts
 	def pre_render(self, Scene, depsgraph):
@@ -994,19 +991,20 @@ class RenderSettings:
 			# get all quilt presets from pylio
 			self._qs = pylio.LookingGlassQuilt.formats.get()
 
-			#BookMark
 			if self.addon_settings.render_use_view_range:
-				#The quilt will fail if all 66 veiws are not made
+				#The quilt will fail if all needed views are not made so select 'views only'
 				self.addon_settings.render_output = '2'
-				if self.addon_settings.render_view_start <= self._qs[int(self._quilt_preset)]["total_views"]:
+
+				# -1 as we index from 0 and total_views is the number of images
+				if self.addon_settings.render_view_start < self._qs[int(self._quilt_preset)]["total_views"]:
 					self.view_start = self.addon_settings.render_view_start
-				if self.addon_settings.render_view_end <= self._qs[int(self._quilt_preset)]["total_views"] and self.view_start <= self.addon_settings.render_view_end:
+				if self.addon_settings.render_view_end < self._qs[int(self._quilt_preset)]["total_views"] and self.view_start <= self.addon_settings.render_view_end + 1:
 					self.view_end = self.addon_settings.render_view_end
 
 			# set view range to default if None was given
 			if self.view_start is None: self.view_start = 0
-			if self.view_end is None: self.view_end = self._qs[int(self._quilt_preset)]["total_views"]-1
-			self.job.used_views = self.view_end - self.view_start
+			if self.view_end is None: self.view_end = self._qs[int(self._quilt_preset)]["total_views"] -1
+			self.job.used_views = self.view_end + 1 - self.view_start
 
 			# PATH SETTINGS
 			# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1402,16 +1400,8 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 		# +++++++++++++++++++++++++++++++++++++++++++
 		#print example
 		# if the view files shall not be kept OR (still was rendered AND no filename was specfied) OR the file keeping is forced OR the incomplete render job was discarded
-		#LookingGlassAddonLogger.info(f"{self.render_settings.addon_settings.render_output} - output type") #0
-		#LookingGlassAddonLogger.info(self.render_settings.job.animation)# True
-		#LookingGlassAddonLogger.info(self.render_settings.job.file_use_temp)# False
-		#LookingGlassAddonLogger.info(self.animation)# True
-		#LookingGlassAddonLogger.info(self.render_settings.job.file_force_keep)# False
-		#LookingGlassAddonLogger.info(self.discard_lockfile)# False
 
 		if ((self.render_settings.addon_settings.render_output == '1' or (not ((self.render_settings.job.animation == False and not self.render_settings.job.file_use_temp) or self.animation == True))) and self.render_settings.job.file_force_keep == False) or self.discard_lockfile == True:
-
-			#BookMark
 
 			LookingGlassAddonLogger.info("Cleaning up the disk files.")
 
@@ -1791,11 +1781,10 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 				# QUILT ASSEMBLY
 				# ++++++++++++++++++++++++++++++++++++++++++++
 				# if this was the last view OR a multiview render
-				if self.render_settings.job.view == (self.render_settings.job.view_end - 1) or self.use_multiview:
+				if self.render_settings.job.view == (self.render_settings.job.view_end) or self.use_multiview:
 					start = time.time()
 
-					#BookMark
-
+					# if 'views only' is selected, don't render the quilt
 					if self.render_settings.addon_settings.render_output != '2':
 
 						# assemble the quilt from the view data
@@ -1852,7 +1841,7 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 				if self.render_settings.job.animation == False:
 
 					# if this was not the last view AND the multiview mechanism is NOT used
-					if self.render_settings.job.view < (self.render_settings.job.view_end - 1) and not self.use_multiview:
+					if self.render_settings.job.view < (self.render_settings.job.view_end) and not self.use_multiview:
 
 						# increase view count
 						self.render_settings.job.view += 1
@@ -1874,7 +1863,7 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 				elif self.render_settings.job.animation == True:
 
 					# if this was not the last view AND the multiview mechanism is NOT used
-					if self.render_settings.job.view < (self.render_settings.job.view_end - 1) and not self.use_multiview:
+					if self.render_settings.job.view < (self.render_settings.job.view_end) and not self.use_multiview:
 
 						# increase view count
 						self.render_settings.job.view += 1
@@ -1883,7 +1872,7 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 						self.render_settings.job._state = "INVOKE_RENDER"
 
 					# if this was the last view OR the multiview mechanism is used
-					elif self.render_settings.job.view == (self.render_settings.job.view_end - 1) or self.use_multiview:
+					elif self.render_settings.job.view == (self.render_settings.job.view_end) or self.use_multiview:
 
 						# but if this was not the last frame
 						if self.render_settings.job.frame < self.render_settings.job.scene.frame_end:

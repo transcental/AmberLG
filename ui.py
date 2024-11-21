@@ -1026,7 +1026,6 @@ class LookingGlassAddonSettingsScene(bpy.types.PropertyGroup):
 									name="Output",
 									)
 
-	#BookMark
 	# Use custom view range or not
 	render_use_view_range: bpy.props.BoolProperty(
 										name="Use View Range",
@@ -1034,7 +1033,7 @@ class LookingGlassAddonSettingsScene(bpy.types.PropertyGroup):
 										default = False,
 										)
 
-	# View specification
+	# View range start
 	render_view_start: bpy.props.IntProperty(
 										name = "View Start",
 										default = 0,
@@ -1043,6 +1042,7 @@ class LookingGlassAddonSettingsScene(bpy.types.PropertyGroup):
 										description = "The starting viewing angle for the render.",
 										)
 
+	# View range end
 	render_view_end: bpy.props.IntProperty(
 										name = "View End",
 										default = 65,
@@ -1564,7 +1564,6 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		row_use_view_range = row_general_options.row(align = True)
 		render_use_view_range = row_use_view_range.prop(context.scene.addon_settings, "render_use_view_range")
 
-		#BookMark
 		# Render orientation
 		row_orientation = layout.row(align = True)
 		column_1 = row_orientation.row(align = True)
@@ -1610,6 +1609,7 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		column_2.prop(context.scene.addon_settings, "render_view_end", text="")
 		column_2.scale_x = 0.7
 
+		# activate/deactivate menus based on 'use view range' 
 		row_output.enabled = not context.scene.addon_settings.render_use_view_range
 		row_view_start.enabled = context.scene.addon_settings.render_use_view_range
 		row_view_end.enabled = context.scene.addon_settings.render_use_view_range
@@ -1628,7 +1628,6 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 				row_render_still = layout.row(align = True)
 				render_quilt = row_render_still.operator("render.quilt", text="Start Render" if (context.scene.addon_settings.render_use_view_range or context.scene.addon_settings.render_output == "2") else "Render Quilt", icon='RENDER_STILL')
 				render_quilt.animation = False
-				print(context.scene.addon_settings.render_view_start != context.scene.addon_settings.render_view_end)
 				render_quilt.use_multiview = (context.preferences.addons[__package__].preferences.camera_mode == '1' and context.scene.addon_settings.render_view_start != context.scene.addon_settings.render_view_end)
 
 			if LookingGlassAddon.RenderInvoked == True and LookingGlassAddon.RenderAnimation == True:
