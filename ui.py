@@ -1581,38 +1581,36 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 		column_2.scale_x = 0.7
 
 		# Output file handling
-		row_output = layout.row(align = True)
-		column_1 = row_output.row(align = True)
-		column_1.label(text="Output:")
-		column_1.scale_x = 0.3
-		column_2 = row_output.row(align = True)
-		column_2.prop(context.scene.addon_settings, "render_output", text="")
-		column_2.scale_x = 0.7
+		# If the user wants to specify the view range, the program cannot create a quilt with incomplete data
+		# so 'veiws only' will be selected by the program
+		if not context.scene.addon_settings.render_use_view_range:
+			row_output = layout.row(align = True)
+			column_1 = row_output.row(align = True)
+			column_1.label(text="Output:")
+			column_1.scale_x = 0.3
+			column_2 = row_output.row(align = True)
+			column_2.prop(context.scene.addon_settings, "render_output", text="")
+			column_2.scale_x = 0.7
 
 		# Start view
-		row_view_start = layout.row(align = True)
-		column_1 = row_view_start.row(align = True)
-		column_1.label(text="Start View:")
-		column_1.scale_x = 0.3
-		column_2 = row_view_start.row(align = True)
-		column_2.prop(context.scene.addon_settings, "render_view_start", text="")
-		column_2.scale_x = 0.7
+		# If the user has selected to use a view range
+		if context.scene.addon_settings.render_use_view_range:
+			row_view_start = layout.row(align = True)
+			column_1 = row_view_start.row(align = True)
+			column_1.label(text="Start View:")
+			column_1.scale_x = 0.3
+			column_2 = row_view_start.row(align = True)
+			column_2.prop(context.scene.addon_settings, "render_view_start", text="")
+			column_2.scale_x = 0.7
 
-		
-
-		# End view
-		row_view_end = layout.row(align = True)
-		column_1 = row_view_end.row(align = True)
-		column_1.label(text="End View:")
-		column_1.scale_x = 0.3
-		column_2 = row_view_end.row(align = True)
-		column_2.prop(context.scene.addon_settings, "render_view_end", text="")
-		column_2.scale_x = 0.7
-
-		# activate/deactivate menus based on 'use view range'
-		row_output.enabled = not context.scene.addon_settings.render_use_view_range
-		row_view_start.enabled = context.scene.addon_settings.render_use_view_range
-		row_view_end.enabled = context.scene.addon_settings.render_use_view_range
+			# End view
+			row_view_end = layout.row(align = True)
+			column_1 = row_view_end.row(align = True)
+			column_1.label(text="End View:")
+			column_1.scale_x = 0.3
+			column_2 = row_view_end.row(align = True)
+			column_2.prop(context.scene.addon_settings, "render_view_end", text="")
+			column_2.scale_x = 0.7
 
 		# if no lockfile was detected on start-up OR the render job is running
 		if not LookingGlassAddon.has_lockfile or LookingGlassAddon.RenderInvoked:
