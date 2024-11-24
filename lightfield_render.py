@@ -992,17 +992,24 @@ class RenderSettings:
 			self._qs = pylio.LookingGlassQuilt.formats.get()
 
 			if self.addon_settings.render_use_view_range:
-				#The quilt will fail if all needed views are not made so select 'views only'
+				# The quilt will fail if all needed views are not made so select 'views only'
 				self.addon_settings.render_output = '2'
 
-				# -1 as we index from 0 and total_views is the number of images
+				# check start and end are within range
 				if self.addon_settings.render_view_start < self._qs[int(self._quilt_preset)]["total_views"]:
 					self.view_start = self.addon_settings.render_view_start
+				else:
+					LookingGlassAddonLogger.warning(f"View start is greater than total number of views supported by selected device ({self._qs[int(self._quilt_preset)]["total_views"]-1})")
 
 				if self.addon_settings.render_view_end < self._qs[int(self._quilt_preset)]["total_views"] and self.view_start <= self.addon_settings.render_view_end:
 					self.view_end = self.addon_settings.render_view_end
+				else:
+					if self.view_start <= self.addon_settings.render_view_end:
+						LookingGlassAddonLogger.warning(f"View end is greater than total number of views supported by selected device ({self._qs[int(self._quilt_preset)]["total_views"]-1})")
+					else:
+						LookingGlassAddonLogger.warning(f"View end is greater than view start")
 
-			# set view range to default if None was given
+			# set view range to default if None was given or was invalid
 			if self.view_start is None: self.view_start = 0
 			if self.view_end is None: self.view_end = self._qs[int(self._quilt_preset)]["total_views"] -1
 			self.job.used_views = self.view_end + 1 - self.view_start
@@ -1017,14 +1024,12 @@ class RenderSettings:
 			self.job.lockfile_path = bpy.path.abspath(LookingGlassAddon.tmp_path + os.path.basename(bpy.data.filepath) + ".lock")
 
 
-
 			# ORIGINAL SETTINGS
 			# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 			# store a copy of the original bpy.types.RenderSettings as a
 			# dictionary for recovery
 			self.original = self.copy()
-
 
 
 			# RENDER JOB SETTINGS
@@ -1389,6 +1394,7 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 
 
 
+
 		# CLEAR IMAGE & PIXEL DATA
 		# +++++++++++++++++++++++++
 		self.render_settings.job._view_image = None
@@ -1397,11 +1403,10 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 
 
 
+
 		# CLEAN-UP FILES
 		# +++++++++++++++++++++++++++++++++++++++++++
-		#print example
 		# if the view files shall not be kept OR (still was rendered AND no filename was specfied) OR the file keeping is forced OR the incomplete render job was discarded
-
 		if ((self.render_settings.addon_settings.render_output == '1' or (not ((self.render_settings.job.animation == False and not self.render_settings.job.file_use_temp) or self.animation == True))) and self.render_settings.job.file_force_keep == False) or self.discard_lockfile == True:
 
 			LookingGlassAddonLogger.info("Cleaning up the disk files.")
@@ -1420,6 +1425,7 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 
 				#  delete its views
 				self.render_settings.job.delete_files()
+
 
 
 
@@ -1488,7 +1494,6 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 				self.report({"ERROR"}, "Render job can not be continued. Lockfile not found or corrupted.")
 
 				# cancel the operator
-				LookingGlassAddonLogger.info('canceled - 2')
 				self.cancel(context)
 
 				# don't execute operator
@@ -1608,7 +1613,6 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 		if self.discard_lockfile == True:
 
 			# cancel the operator
-			LookingGlassAddonLogger.info('canceled - 1')
 			self.cancel(context)
 
 			# notify user
@@ -1790,7 +1794,6 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 
 						# assemble the quilt from the view data
 						if not self.render_settings.job.assemble_quilt():
-							LookingGlassAddonLogger.info('failed to make quilt')
 
 							# cancel the operator
 							self.render_settings.addon_settings.render_stop = True
@@ -1929,7 +1932,6 @@ class LOOKINGGLASS_OT_render_quilt(bpy.types.Operator):
 		if (self.render_settings.job._state == "INVOKE_RENDER" or self.render_settings.job._state == "COMPLETE_RENDER" or self.render_settings.job._state == "CANCEL_RENDER") and self.render_settings.addon_settings.render_stop:
 
 			# cancel the operator
-			LookingGlassAddonLogger.info('canceled - 0')
 			self.cancel(context)
 
 			# notify user

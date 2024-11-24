@@ -19,12 +19,12 @@
 
 # -------------------- DEFINE ADDON ----------------------
 bl_info = {
-	"name": "Amber/LG/",
+	"name": "Alice/LG",
 	"author": "Christian Stolze",
 	"version": (2, 3, 0),
 	"blender": (2, 93, 6),
 	"location": "View3D > Looking Glass Tab",
-	"description": "Amber/LG is Alice/LG which takes your artworks through the Looking Glass (light field displays) but it doesn't delete files",
+	"description": "Alice/LG takes your artworks through the Looking Glass (light field displays)",
 	"category": "View",
 	"warning": "",
 	"doc_url": "https://github.com/regcs/AliceLG/blob/master/README.md",
@@ -76,7 +76,7 @@ def log_exhook(exc_type, exc_value, exc_traceback):
 
 	# log that an unhandled exception occured in Alice/LG's log file
 	LookingGlassAddonLogger.critical("An unhandled error occured. Here is the traceback:\n", exc_info=(exc_type, exc_value, exc_traceback))
-	
+
 	# then continue with the system behavior
 	sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
