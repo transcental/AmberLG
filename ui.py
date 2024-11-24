@@ -1674,9 +1674,12 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			row_orientation.enabled = False
 			row_use_view_range.enabled = False
 			row_preset.enabled = False
-			row_output.enabled = False
-			row_view_start.enabled = False
-			row_view_end.enabled = False
+			# can't disable if not drawn
+			if not context.scene.addon_settings.render_use_view_range:
+				row_output.enabled = False
+			else:
+				row_view_start.enabled = False
+				row_view_end.enabled = False
 
 			if LookingGlassAddon.RenderAnimation == True: row_render_still.enabled = False
 			if LookingGlassAddon.RenderAnimation == False: row_render_animation.enabled = False
@@ -1690,9 +1693,12 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			row_orientation.enabled = False
 			row_use_view_range.enabled = False
 			row_preset.enabled = False
-			row_output.enabled = False
-			row_view_start.enabled = False
-			row_view_end.enabled = False
+			# can't disable if not drawn
+			if not context.scene.addon_settings.render_use_view_range:
+				row_output.enabled = False
+			else:
+				row_view_start.enabled = False
+				row_view_end.enabled = False
 			row_render_still.enabled = False
 			row_render_animation.enabled = False
 
@@ -1703,6 +1709,7 @@ class LOOKINGGLASS_PT_panel_render(bpy.types.Panel):
 			row_orientation.enabled = False
 			row_preset.enabled = False
 			row_use_view_range.enabled = False
+			
 			row_view_start.enabled = False
 			row_view_end.enabled = False
 
