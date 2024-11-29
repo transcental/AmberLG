@@ -999,13 +999,13 @@ class RenderSettings:
 				if self.addon_settings.render_view_start < self._qs[int(self._quilt_preset)]["total_views"]:
 					self.view_start = self.addon_settings.render_view_start
 				else:
-					LookingGlassAddonLogger.warning(f"View start is greater than total number of views supported by selected device ({self._qs[int(self._quilt_preset)]["total_views"]-1})")
+					LookingGlassAddonLogger.warning(f"View start is greater than total number of views supported by selected device ({self._qs[int(self._quilt_preset)]['total_views']-1})")
 
 				if self.addon_settings.render_view_end < self._qs[int(self._quilt_preset)]["total_views"] and self.view_start <= self.addon_settings.render_view_end:
 					self.view_end = self.addon_settings.render_view_end
 				else:
 					if self.view_start <= self.addon_settings.render_view_end:
-						LookingGlassAddonLogger.warning(f"View end is greater than total number of views supported by selected device ({self._qs[int(self._quilt_preset)]["total_views"]-1})")
+						LookingGlassAddonLogger.warning(f"View end is greater than total number of views supported by selected device ({self._qs[int(self._quilt_preset)]['total_views']-1})")
 					else:
 						LookingGlassAddonLogger.warning(f"View end is greater than view start")
 
